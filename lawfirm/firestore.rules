@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Roles come from signed custom claims set only by the Express server.
+    function signedIn() { return request.auth != null; }
+    function role() { return request.auth.token.role; }
+    function isAdmin() { return signedIn() && role() == 'admin'; }
+    function isTeam() { return signedIn() && (role() == 'staff' || role() == 'admin'); }
+    function me() { return request.auth.uid; }
+
+    // Private account record: the owner and admins only. Written by the server.
+    match /users/{uid} {
+      allow read: if signedIn() && (me() == uid || isAdmin());
+      allow write: if false;
+    }
+
+    // Staff directory (no emails/phones). Visible to team members only; clients use the API.
+    match /team/{uid} {
+      allow read: if isTeam();
+      allow write: if false;
+    }
+
+    match /appointments/{id} {
+      allow read: if signedIn() && (resource.data.clientId == me() || resource.data.staffId == me() || isAdmin());
+      allow write: if false;
+    }
+
+    match /documents/{id} {
+      allow read: if signedIn() && (resource.data.clientId == me() || resource.data.staffId == me() || isAdmin());
+      allow write: if false;
+    }
+
+    match /tasks/{id} {
+      allow read: if isTeam() && (resource.data.assigneeId == me() || resource.data.createdBy == me() || isAdmin());
+      allow write: if false;
+    }
+
+    // Owner may only flip "read" on their own notifications or delete them.
+    match /notifications/{id} {
+      allow read: if signedIn() && resource.data.userId == me();
+      allow update: if signedIn() && resource.data.userId == me()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if signedIn() && resource.data.userId == me();
+      allow create: if false;
+    }
+
+    // Supervisor audit trail and website enquiries.
+    match /activity/{id} { allow read: if isAdmin(); allow write: if false; }
+    match /contactMessages/{id} { allow read: if isAdmin(); allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['handled']); allow create, delete: if false; }
+
+    // Staff chat: team members only. #general is open to the team; DMs only to the two people named in the id.
+    match /chats/{chatId}/messages/{msgId} {
+      function allowedChat() {
+        return chatId == 'general' || (chatId.matches('dm_.+_.+') && me() in chatId.split('_'));
+      }
+      allow read: if isTeam() && allowedChat();
+      allow create: if isTeam() && allowedChat()
+                    && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'createdAt'])
+                    && request.resource.data.uid == me()
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000
+                    && request.resource.data.name is string && request.resource.data.name.size() <= 80
+                    && request.resource.data.createdAt == request.time;
+      allow delete: if isTeam() && allowedChat() && (resource.data.uid == me() || isAdmin());
+      allow update: if false;
+    }
+
+    // invites, slots, anything else: server only.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

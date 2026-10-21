@@ -1,0 +1,41 @@
+/* Sliding login / sign-up card (based on the supplied example) */
+.auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(900px 500px at 15% 0%, rgba(205, 166, 94, 0.22), transparent 60%), radial-gradient(800px 600px at 100% 100%, rgba(60, 90, 160, 0.4), transparent 60%), var(--navy-deep); position: relative; }
+.auth-top { position: absolute; top: 18px; left: 22px; right: 22px; display: flex; justify-content: space-between; align-items: center; color: #cdd3e3; font-size: 0.9rem; }
+.auth-top a { text-decoration: none; font-weight: 600; } .auth-top a:hover { color: var(--gold-soft); }
+.card-auth { position: relative; overflow: hidden; width: min(880px, 100%); height: 640px; border-radius: 28px; background: #ffffff; border: 8px solid #ffffff; color: #1b2236; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5); }
+.card-bg { position: absolute; z-index: 2; top: 0; left: 0; bottom: 0; width: 50%; border-radius: 20px; overflow: hidden; translate: 0 0; transition: translate 0.65s ease-in-out;
+  background: linear-gradient(155deg, #2a3c64 0%, #202d4a 45%, #121a2e 100%); }
+.card-bg::before { content: ''; position: absolute; width: 240px; height: 240px; border: 1.5px solid rgba(205, 166, 94, 0.55); right: -120px; top: -120px; }
+.card-bg::after { content: ''; position: absolute; width: 200px; height: 200px; border: 1.5px solid rgba(205, 166, 94, 0.35); left: -100px; bottom: -100px; }
+.card-bg.login { translate: 100% 0; }
+.hero, .form { position: absolute; width: 50%; height: 100%; opacity: 0; visibility: hidden; transition: translate 0.65s ease-in-out, opacity 0.45s ease-in-out, visibility 0.65s; }
+.hero.active, .form.active { opacity: 1; visibility: visible; }
+.form.register { left: 50%; translate: -100% 0; } .form.register.active { translate: 0 0; }
+.form.login { translate: 100% 0; } .form.login.active { translate: 0 0; }
+.hero.login { left: 50%; translate: 100% 0; } .hero.login.active { translate: 0 0; }
+.hero.register { translate: -100% 0; } .hero.register.active { translate: 0 0; }
+.hero { z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: #f9f9f9; text-align: center; padding: 0 28px; }
+.hero img { width: 120px; margin-bottom: 4px; }
+.hero h2 { font-size: 2.1rem; color: var(--gold-soft); }
+.hero p { margin: 0 0 6px; opacity: 0.86; line-height: 1.5; font-size: 0.95rem; }
+.hero button { padding: 12px 40px; border-radius: 32px; letter-spacing: 0.08em; font-weight: 700; border: 1px solid var(--gold); background: transparent; color: var(--gold-soft); transition: 0.3s; cursor: pointer; }
+.hero button:hover { color: #1a2238; background: var(--gold); }
+.form { background: #fff; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 24px 36px; overflow-y: auto; }
+.form h2 { font-size: 2rem; color: var(--navy); }
+.form form { width: 100%; display: grid; gap: 10px; }
+.form .input { background: #f3f4f8; border-color: #f3f4f8; color: #1b2236; }
+.form .input::placeholder { color: #7b849a; }
+.form .btn { width: 100%; }
+.form label.field > span { color: #3a4560; }
+.form .alt { text-align: center; font-size: 0.86rem; color: #62708a; } .form a.link, .form button.link { color: #8a6a2c; font-weight: 700; background: none; border: 0; cursor: pointer; padding: 0; text-decoration: underline; }
+.sso { display: flex; gap: 10px; justify-content: center; width: 100%; }
+.sso button { width: 100%; display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px; border: 1px solid #dfe3ec; border-radius: 999px; background: #fff; cursor: pointer; font-weight: 700; color: #1b2236; } .sso button:hover { border-color: var(--gold); }
+.divider { display: flex; align-items: center; gap: 10px; color: #7b849a; font-size: 0.8rem; width: 100%; } .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e3e6ee; }
+.mobile-toggle { display: none; }
+@media (max-width: 760px) {
+  .card-auth { height: auto; min-height: 560px; border-width: 4px; }
+  .card-bg, .hero { display: none; }
+  .form { position: relative; width: 100%; height: auto; display: none; translate: 0 0 !important; opacity: 1; visibility: visible; padding: 28px 22px; }
+  .form.active { display: flex; }
+  .mobile-toggle { display: block; }
+}
