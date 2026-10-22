@@ -10,7 +10,12 @@
     "drive-auth": "node --env-file=.env scripts/drive-auth.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
+  },
+  "overrides": {
+    "jwks-rsa": {
+      "jose": "5.9.6"
+    }
   },
   "dependencies": {
     "@vercel/blob": "^2.8.2",
