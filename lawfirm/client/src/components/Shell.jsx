@@ -125,25 +125,13 @@ export default function Shell({ area }) {
 }
 
 function ThemeToggle() {
-  const { profile, role } = useAuth();
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light');
+  const { theme, setTheme } = useAuth();
   const [run, busy] = useAction();
-  useEffect(() => {
-    setTheme(document.documentElement.dataset.theme || (role === 'staff' || role === 'admin' ? 'dark' : 'light'));
-  }, [profile?.prefs?.theme, role]);
-  const toggle = () => run(async () => {
+  const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
     setTheme(next);
-    try {
-      await api('/profile/me', { method: 'PATCH', body: { prefs: { theme: next } } });
-    } catch (error) {
-      const previous = next === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = previous;
-      setTheme(previous);
-      throw error;
-    }
-  });
+    run(() => api('/profile/me', { method: 'PATCH', body: { prefs: { theme: next } } }));
+  };
   const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
   return <button className="icon-btn theme-toggle" type="button" onClick={toggle} disabled={busy} aria-label={label} title={label}>
     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

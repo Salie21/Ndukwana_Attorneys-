@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setThemeState] = useState(() => { try { return localStorage.getItem('theme') || 'light'; } catch { return 'light'; } });
+  const [themeOverride, setThemeOverride] = useState(() => { try { return localStorage.getItem('theme') || ''; } catch { return ''; } });
 
   useEffect(() => onAuthStateChanged(auth, async (u) => {
     setUser(u);
@@ -26,13 +26,16 @@ export function AuthProvider({ children }) {
     return onSnapshot(doc(db, 'users', user.uid), (s) => setProfile(s.exists() ? { id: user.uid, ...s.data() } : null), () => setProfile(null));
   }, [user, role]);
 
-  // Theme: saved preference wins, otherwise the team portal is dark and everything else is light.
+  // A locally chosen theme applies immediately; saved profile settings provide the initial choice.
+  const theme = themeOverride || profile?.prefs?.theme || (role === 'staff' || role === 'admin' ? 'dark' : 'light');
   useEffect(() => {
-    const pref = profile?.prefs?.theme || (role === 'staff' || role === 'admin' ? 'dark' : null);
-    const t = pref || theme;
-    document.documentElement.dataset.theme = t;
-    try { if (pref) localStorage.setItem('theme', pref); } catch { /* storage unavailable */ }
-  }, [profile?.prefs?.theme, role, theme]);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  const setTheme = useCallback((next) => {
+    setThemeOverride(next);
+    try { localStorage.setItem('theme', next); } catch { /* storage unavailable */ }
+  }, []);
 
   // Call after the server sets a new role claim so the browser picks it up immediately.
   const refresh = useCallback(async () => {
@@ -42,6 +45,6 @@ export function AuthProvider({ children }) {
     setRole(t.claims.role || null); return t.claims.role || null;
   }, []);
 
-  const value = useMemo(() => ({ user, role, profile, loading, refresh, setTheme: setThemeState, logout: () => signOut(auth) }), [user, role, profile, loading, refresh]);
+  const value = useMemo(() => ({ user, role, profile, loading, refresh, theme, setTheme, logout: () => signOut(auth) }), [user, role, profile, loading, refresh, theme, setTheme]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -62,4 +62,21 @@
 
 .site-nav .links a.btn-gold { color: #1a2238; }
 .site-foot .social-row a { background: transparent; border-color: rgba(255, 255, 255, 0.22); color: #cdd3e3; } .site-foot .social-row a:hover { border-color: var(--gold); color: var(--gold-soft); }
-@media (max-width: 520px) { .contact-form-pair { grid-template-columns: 1fr; gap: 12px; } .contact-map, .contact-map iframe { min-height: 210px; } .fab-stack { right: 14px; bottom: 78px; } .chatbox { right: 12px; bottom: 78px; height: calc(100vh - 92px); } }
+@media (max-width: 520px) {
+  .contact-form-pair { grid-template-columns: 1fr; gap: 12px; }
+  .contact-map, .contact-map iframe { min-height: 210px; }
+  .fab-stack { right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); }
+  .chatbox {
+    top: calc(var(--chat-viewport-top, 0px) + 8px);
+    right: 8px;
+    bottom: auto;
+    left: 8px;
+    width: auto;
+    height: min(640px, calc(var(--chat-viewport-height, 100dvh) - 16px));
+    min-height: 260px;
+    border-radius: 18px;
+  }
+  .chat-body { min-height: 0; overscroll-behavior: contain; }
+  .chat-foot { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .chat-foot .input { min-width: 0; font-size: 16px; }
+}
