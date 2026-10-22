@@ -12,7 +12,13 @@
 .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 12px; border-bottom: 1px solid rgba(205, 166, 94, 0.35); text-decoration: none; }
 .brand img { width: 44px; height: auto; }
 .brand b { font: 600 1.28rem/1 var(--font-display); color: var(--gold-soft); letter-spacing: 0.02em; } .brand small { display: block; font-size: 0.72rem; color: #9ea8bf; margin-top: 3px; }
-.nav { display: grid; gap: 3px; overflow-y: auto; flex: 1; align-content: start; scrollbar-width: thin; }
+.nav { display: grid; gap: 3px; overflow-y: auto; flex: 1; align-content: start; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.supervisor-sidebar .nav { padding-right: 5px; scrollbar-width: thin; scrollbar-color: rgba(205, 166, 94, .7) rgba(255, 255, 255, .06); }
+.supervisor-sidebar .nav::-webkit-scrollbar { display: block; width: 6px; }
+.supervisor-sidebar .nav::-webkit-scrollbar-track { margin-block: 8px; border-radius: 999px; background: rgba(255, 255, 255, .055); }
+.supervisor-sidebar .nav::-webkit-scrollbar-thumb { border: 1px solid rgba(20, 28, 49, .55); border-radius: 999px; background: linear-gradient(180deg, #e9d8b0, #cda65e); }
+.supervisor-sidebar .nav::-webkit-scrollbar-thumb:hover { background: #e9d8b0; }
 .nav-label { font-size: 0.74rem; color: #8993ab; padding: 12px 12px 4px; font-weight: 600; }
 .nav a, .nav button.nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: #cdd3e3; text-decoration: none; font-weight: 600; font-size: 0.92rem; background: none; border: 0; cursor: pointer; width: 100%; text-align: left; position: relative; transition: background 0.2s, color 0.2s; }
 .nav a:hover, .nav button.nav-item:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }

@@ -20,9 +20,9 @@ export function SiteLayout() {
       <Outlet />
       <footer className="site-foot">
         <div className="wrap in">
-          <span>© {new Date().getFullYear()} {FIRM.name}. {FIRM.address}.</span>
+          <span>© {new Date().getFullYear()} {FIRM.name}.</span>
           <SocialLinks />
-          <Link to="/staff">Team sign in</Link>
+          <Link className="btn btn-gold btn-sm team-sign-in" to="/staff">Team sign in</Link>
         </div>
       </footer>
       <ChatWidget />
@@ -54,7 +54,7 @@ export function Home() {
           <div>
             <h1>Bespoke legal solutions for every client.</h1>
             <p className="lead">Ndukwana Attorneys is a black female-owned boutique law firm in Johannesburg, serving private and public sector clients across South Africa.</p>
-            <div className="row wrap">
+            <div className="row wrap hero-actions">
               <Link className="btn btn-gold" to="/login">Book a consultation</Link>
               <Link className="btn btn-ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/contact">Contact the firm</Link>
             </div>

@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEm
 import { auth } from '../firebase';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { PasswordField } from '../components/ui';
 import { homeFor } from '../components/ProtectedRoute';
 import '../styles/auth.css';
 
@@ -120,7 +121,7 @@ export default function Login({ mode = 'client' }) {
             {!isStaff && <input className="input" type="tel" name="phone" placeholder="Phone (optional)" autoComplete="tel" maxLength={30} aria-label="Phone" />}
             {isStaff && <input className="input" name="title" placeholder="Job title (e.g. Candidate attorney)" maxLength={80} aria-label="Job title" />}
             {isStaff && <input className="input" name="code" placeholder="Invite code from your administrator" required autoComplete="off" aria-label="Invite code" />}
-            <input className="input" type="password" name="password" placeholder="Password (8+ characters)" autoComplete="new-password" required minLength={8} aria-label="Password" />
+            <PasswordField name="password" placeholder="Password (8+ characters)" autoComplete="new-password" required minLength={8} aria-label="Password" />
             {activeView === 'register' && messages}
             <button className="btn btn-gold" disabled={busy}>{busy ? 'Please wait…' : 'SIGN UP'}</button>
           </form>
@@ -135,7 +136,7 @@ export default function Login({ mode = 'client' }) {
           {!isStaff && <GoogleButton onClick={onGoogle} disabled={busy} />}
           <form onSubmit={onLogin}>
             <input className="input" type="email" name="email" placeholder="Email" autoComplete="email" required aria-label="Email" />
-            <input className="input" type="password" name="password" placeholder="Password" autoComplete="current-password" required aria-label="Password" />
+            <PasswordField name="password" placeholder="Password" autoComplete="current-password" required aria-label="Password" />
             <button className="link alt" type="button" onClick={onReset} style={{ justifySelf: 'center' }}>Forgot password?</button>
             {activeView === 'login' && messages}
             <button className="btn btn-gold" disabled={busy}>{busy ? 'Please wait…' : 'LOG IN'}</button>

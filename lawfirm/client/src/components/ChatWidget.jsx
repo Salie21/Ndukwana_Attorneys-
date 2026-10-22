@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bot, Phone, Send, X } from 'lucide-react';
+import { Bot, Send, X } from 'lucide-react';
 import { api } from '../lib/api';
-import { FIRM, telHref, waHref } from '../lib/firm';
-import { WhatsAppIcon } from './Icons';
 
 const GREETING = 'Hello, I am the Ndukwana Attorneys assistant. I can answer simple questions about the firm, our services and how to book. I cannot give legal advice.';
 const QUICK = ['What services do you offer?', 'How do I book a consultation?', 'Where is your office?'];
@@ -34,8 +32,6 @@ export default function ChatWidget() {
   if (!open) {
     return (
       <div className="fab-stack">
-        <a className="fab wa" href={waHref()} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"><WhatsAppIcon width={26} height={26} /></a>
-        <a className="fab call" href={telHref(FIRM.phones[0])} aria-label="Call the office"><Phone size={22} /></a>
         <button className="fab bot" onClick={() => setOpen(true)} aria-label="Ask the assistant"><Bot size={26} /></button>
       </div>
     );

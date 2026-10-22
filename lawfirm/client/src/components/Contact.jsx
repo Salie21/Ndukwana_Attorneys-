@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Mail, Phone, MessageCircle } from 'lucide-react';
+import { MapPin, Mail, Phone } from 'lucide-react';
 import { FIRM, telHref, waHref } from '../lib/firm';
 import { SOCIAL_ICONS, WhatsAppIcon } from './Icons';
 import { api } from '../lib/api';
@@ -29,7 +29,7 @@ export function ContactForm() {
   return (
     <form className="stack" onSubmit={submit}>
       <label className="field"><span>Your name</span><input className="input" name="name" required minLength={2} maxLength={80} autoComplete="name" /></label>
-      <div className="row wrap" style={{ alignItems: 'stretch' }}>
+      <div className="contact-form-pair">
         <label className="field grow"><span>Email</span><input className="input" type="email" name="email" required maxLength={120} autoComplete="email" /></label>
         <label className="field grow"><span>Phone (optional)</span><input className="input" type="tel" name="phone" maxLength={30} autoComplete="tel" /></label>
       </div>
@@ -47,9 +47,22 @@ export function ContactSection() {
       <div className="contact-card">
         <h2>Talk to the firm</h2>
         <p className="muted">Send a message, call, or message us on WhatsApp. For a private consultation, book through the client portal.</p>
-        <div className="contact-line"><MapPin size={20} /><span>{FIRM.address}</span></div>
-        <div className="contact-line"><Phone size={20} /><span>{FIRM.phones.map((p) => <a key={p} href={telHref(p)} style={{ display: 'block' }}>{p}</a>)}</span></div>
-        <div className="contact-line"><Mail size={20} /><a href={`mailto:${FIRM.email}`}>{FIRM.email}</a></div>
+        <div className="contact-location">
+          <div className="contact-map">
+            <iframe
+              title="Map to Ndukwana Attorneys, Marshalltown, Johannesburg"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(FIRM.address)}&output=embed`}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+          <div className="location-address"><MapPin size={19} /><span>{FIRM.address}</span></div>
+        </div>
+        <div className="contact-details">
+          <div className="contact-line"><Phone size={19} /><div className="contact-phone-list">{FIRM.phones.map((p) => <a key={p} href={telHref(p)}>{p}</a>)}</div></div>
+          <div className="contact-line"><Mail size={19} /><a href={`mailto:${FIRM.email}`}>{FIRM.email}</a></div>
+        </div>
         <div className="cta-row"><WhatsAppButton /><CallButton /></div>
         <SocialLinks />
       </div>
@@ -58,4 +71,3 @@ export function ContactSection() {
   );
 }
 
-export { MessageCircle };

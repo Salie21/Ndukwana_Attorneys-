@@ -1,14 +1,12 @@
-import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
-import { Moon, Sun } from 'lucide-react';
 import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PageHeader } from '../../components/Shell';
-import { useAction, useToast } from '../../components/ui';
+import { PasswordField, useAction, useToast } from '../../components/ui';
 
-const TITLES = { profile: 'My details', notifications: 'Notifications', appearance: 'Appearance', security: 'Security' };
+const TITLES = { profile: 'My details', notifications: 'Notifications', security: 'Security' };
 
 function Details() {
   const { profile } = useAuth(); const [run, busy] = useAction();
@@ -44,22 +42,6 @@ function Notif() {
   );
 }
 
-function Appearance() {
-  const { profile, setTheme } = useAuth(); const [run] = useAction();
-  const cur = document.documentElement.dataset.theme || 'light';
-  const pick = (t) => { setTheme(t); document.documentElement.dataset.theme = t; run(() => api('/profile/me', { method: 'PATCH', body: { prefs: { theme: t } } })); };
-  return (
-    <div className="card stack" style={{ maxWidth: 520 }}>
-      <h3>Theme</h3>
-      <div className="row wrap">
-        <button className={`pick ${cur === 'light' ? 'on' : ''}`} style={{ width: 'auto' }} onClick={() => pick('light')}><Sun size={18} />Light</button>
-        <button className={`pick ${cur === 'dark' ? 'on' : ''}`} style={{ width: 'auto' }} onClick={() => pick('dark')}><Moon size={18} />Dark</button>
-      </div>
-      <p className="hint">{profile?.prefs?.theme ? 'Saved to your account.' : 'Default for your role.'}</p>
-    </div>
-  );
-}
-
 function Security() {
   const { user, logout } = useAuth(); const [run, busy] = useAction(); const toast = useToast();
   const hasPassword = user.providerData.some((p) => p.providerId === 'password');
@@ -78,9 +60,9 @@ function Security() {
       {hasPassword ? (
         <form className="card stack" onSubmit={change}>
           <h3>Change password</h3>
-          <input className="input" type="password" name="current" placeholder="Current password" autoComplete="current-password" required aria-label="Current password" />
-          <input className="input" type="password" name="next" placeholder="New password (8+ characters)" autoComplete="new-password" required minLength={8} aria-label="New password" />
-          <input className="input" type="password" name="again" placeholder="Repeat new password" autoComplete="new-password" required minLength={8} aria-label="Repeat new password" />
+          <PasswordField name="current" placeholder="Current password" autoComplete="current-password" required aria-label="Current password" />
+          <PasswordField name="next" placeholder="New password (8+ characters)" autoComplete="new-password" required minLength={8} aria-label="New password" />
+          <PasswordField name="again" placeholder="Repeat new password" autoComplete="new-password" required minLength={8} aria-label="Repeat new password" />
           <button className="btn btn-gold" disabled={busy}>Update password</button>
         </form>
       ) : <div className="card"><h3>Password</h3><p className="muted">You sign in with Google, so your password is managed by your Google account.</p></div>}
@@ -92,6 +74,6 @@ function Security() {
 export default function Settings() {
   const { tab } = useParams(); const { role } = useAuth();
   if (!TITLES[tab] || (tab === 'profile' && role !== 'client')) return <Navigate to="notifications" replace />;
-  const Body = { profile: Details, notifications: Notif, appearance: Appearance, security: Security }[tab];
+  const Body = { profile: Details, notifications: Notif, security: Security }[tab];
   return (<><PageHeader title={TITLES[tab]} sub="Settings" /><Body /></>);
 }

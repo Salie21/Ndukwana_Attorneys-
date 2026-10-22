@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import { initials } from '../lib/format';
 
 export function Avatar({ src, name, size = 38 }) {
@@ -9,6 +9,19 @@ export const Spinner = () => <div className="spinner" role="status" aria-label="
 export const Loading = () => <div className="empty"><Spinner /></div>;
 export const Status = ({ value }) => <span className={`badge ${value}`}><span>{String(value).replace('_', ' ')}</span></span>;
 export const Empty = ({ title, children }) => <div className="empty"><h4>{title}</h4>{children && <p>{children}</p>}</div>;
+
+export function PasswordField({ className = '', ...props }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="password-field">
+      <input {...props} className={`input ${className}`} type={visible ? 'text' : 'password'} />
+      <button className="password-toggle" type="button" onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Hide password' : 'Show password'} aria-pressed={visible}>
+        {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+  );
+}
 
 export function Modal({ title, onClose, children, className = '' }) {
   useEffect(() => {
