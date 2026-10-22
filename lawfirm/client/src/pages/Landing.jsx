@@ -1,64 +1,60 @@
 import { Link, Outlet } from 'react-router-dom';
+import { Briefcase, Building2, FileSignature, Gavel, Home as HomeIcon, Landmark } from 'lucide-react';
 import { Avatar } from '../components/ui';
 import ChatWidget from '../components/ChatWidget';
-import { ContactSection, SocialLinks } from '../components/Contact';
-import { FIRM } from '../lib/firm';
+import SiteFooter from '../components/SiteFooter';
+import LanguageSelect from '../components/LanguageSelect';
+import { Reveal, TiltCard } from '../components/effects';
+import { ContactSection } from '../components/Contact';
+import { useT } from '../i18n/I18nProvider';
 import '../styles/landing.css';
 
 export function SiteLayout() {
+  const t = useT();
   return (
     <>
       <header className="site-nav">
         <div className="in">
           <Link to="/" className="brand"><img src="/logo-mark.png" alt="" style={{ width: 40 }} /><div><b>Ndukwana</b><small>Attorneys</small></div></Link>
           <nav className="links" aria-label="Site">
-            <a href="/#services">Services</a><a href="/#team">Team</a><a href="/#process">How it works</a><Link to="/contact">Contact</Link>
-            <Link className="btn btn-gold btn-sm" to="/login">Client portal</Link>
+            <a href="/#services">{t('site.services')}</a><a href="/#team">{t('site.team')}</a><a href="/#process">{t('site.process')}</a><Link to="/contact">{t('site.contact')}</Link>
+            <LanguageSelect compact id="site-language" />
+            <Link className="btn btn-gold btn-sm" to="/login">{t('site.portal')}</Link>
           </nav>
         </div>
       </header>
       <Outlet />
-      <footer className="site-foot">
-        <div className="wrap in">
-          <span>© {new Date().getFullYear()} {FIRM.name}.</span>
-          <SocialLinks />
-          <Link className="btn btn-gold btn-sm team-sign-in" to="/staff">Team sign in</Link>
-        </div>
-      </footer>
+      <SiteFooter />
       <ChatWidget />
     </>
   );
 }
 
 const AREAS = [
-  ['Estate planning and administration', 'Wills, planning and the administration of deceased estates. About 60% of our work, handled with care for the families involved.'],
-  ['Corporate and commercial law', 'Governance, contracts, regulatory and procurement matters, and compliance advice for businesses and public bodies.'],
-  ['Conveyancing', 'Property transfers and the legal documentation behind buying and selling property.'],
-  ['Labour and employment', 'Resolving workplace disputes and advising employers and employees.'],
-  ['Litigation', 'Civil and property litigation, including default and summary judgments in the magistrates’ and high courts.'],
-  ['Agreements, opinions and FICA', 'Drafting agreements, written legal opinions and FICA compliance support.'],
+  ['estate', Landmark],
+  ['corporate', Building2],
+  ['conveyancing', HomeIcon],
+  ['labour', Briefcase],
+  ['litigation', Gavel],
+  ['drafting', FileSignature],
 ];
 
-const STEPS = [
-  ['Create an account', 'Register free with your email or Google.'],
-  ['Choose your case type', 'We show the attorneys who handle it.'],
-  ['Describe and book', 'Add a short description and pick a time.'],
-  ['Get confirmation', 'You are notified when it is approved. Upload documents any time.'],
-];
+const STEPS = ['s1', 's2', 's3', 's4'];
 
 export function Home() {
+  const t = useT();
   return (
     <>
       <section className="hero-site">
         <div className="wrap hero-grid">
           <div>
-            <h1>Bespoke legal solutions for every client.</h1>
-            <p className="lead">Ndukwana Attorneys is a black female-owned boutique law firm in Johannesburg, serving private and public sector clients across South Africa.</p>
+            <h1>{t('hero.title')}</h1>
+            <p className="lead">{t('hero.lead')}</p>
             <div className="row wrap hero-actions">
-              <Link className="btn btn-gold" to="/login">Book a consultation</Link>
-              <Link className="btn btn-ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/contact">Contact the firm</Link>
+              <Link className="btn btn-gold" to="/login">{t('hero.book')}</Link>
+              <Link className="btn btn-ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.35)' }} to="/contact">{t('hero.contact')}</Link>
             </div>
-            <div className="fact-row"><span><b>2018</b>established</span><span><b>Johannesburg</b>Marshalltown office</span></div>
+            <div className="fact-row"><span><b>2018</b>{t('hero.est')}</span><span><b>Johannesburg</b>{t('hero.office')}</span></div>
           </div>
           <div className="frame"><img src="/logo-mark.png" alt="Ndukwana Attorneys" /></div>
         </div>
@@ -66,26 +62,36 @@ export function Home() {
 
       <section className="section" id="services">
         <div className="wrap">
-          <div className="section-head"><h2>What we do</h2><p>Focused on the matters that shape families and businesses.</p></div>
-          <div className="practice">{AREAS.map(([t, d]) => <article key={t}><h3>{t}</h3><p>{d}</p></article>)}</div>
+          <Reveal className="section-head"><h2>{t('services.title')}</h2><p>{t('services.sub')}</p></Reveal>
+          <div className="practice">
+            {AREAS.map(([id, Icon], i) => (
+              <Reveal key={id} delay={i * 70}>
+                <TiltCard as="article">
+                  <span className="practice-icon"><Icon size={22} aria-hidden="true" /></span>
+                  <h3>{t(`area.${id}.t`)}</h3>
+                  <p>{t(`area.${id}.d`)}</p>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="section alt" id="team">
         <div className="wrap">
-          <div className="section-head"><h2>The people you will work with</h2></div>
+          <Reveal className="section-head"><h2>{t('team.title')}</h2></Reveal>
           <div className="people">
-            <div className="person"><Avatar name="Bomikazi Ndukwana" size={64} /><div><h3>Adv. Bomikazi Ndukwana</h3><span className="role">Founder and director</span><p>LLB (University of Zululand) with over six years’ experience as an estate administration attorney and a corporate and civil litigation specialist. Expertise in corporate governance, regulatory and procurement law, and employment law.</p></div></div>
-            <div className="person"><Avatar name="Khosi Sihunu" size={64} /><div><h3>Khosi Sihunu</h3><span className="role">Advocate and strategic associate</span><p>Experience in international corporate law and contracts, corporate commercial law, general litigation, drafting court documents and criminal law litigation.</p></div></div>
+            <Reveal><TiltCard className="person"><Avatar name="Bomikazi Ndukwana" size={64} /><div><h3>Adv. Bomikazi Ndukwana</h3><span className="role">{t('team.founder')}</span><p>{t('team.bomikazi')}</p></div></TiltCard></Reveal>
+            <Reveal delay={90}><TiltCard className="person"><Avatar name="Khosi Sihunu" size={64} /><div><h3>Khosi Sihunu</h3><span className="role">{t('team.associate')}</span><p>{t('team.khosi')}</p></div></TiltCard></Reveal>
           </div>
         </div>
       </section>
 
       <section className="section" id="process">
         <div className="wrap">
-          <div className="section-head"><h2>Book online in four steps</h2><p>Your documents and case details stay private in your client account.</p></div>
-          <ol className="flow">{STEPS.map(([t, d]) => <li key={t}><b>{t}</b><span>{d}</span></li>)}</ol>
-          <div style={{ marginTop: 34 }}><Link className="btn btn-gold" to="/login">Create your account</Link></div>
+          <Reveal className="section-head"><h2>{t('process.title')}</h2><p>{t('process.sub')}</p></Reveal>
+          <ol className="flow">{STEPS.map((s, i) => <Reveal as="li" key={s} delay={i * 90}><b>{t(`process.${s}.t`)}</b><span>{t(`process.${s}.d`)}</span></Reveal>)}</ol>
+          <div style={{ marginTop: 34 }}><Link className="btn btn-gold" to="/login">{t('process.cta')}</Link></div>
         </div>
       </section>
 

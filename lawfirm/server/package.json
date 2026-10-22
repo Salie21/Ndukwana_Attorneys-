@@ -18,6 +18,7 @@
     }
   },
   "dependencies": {
+    "@google/genai": "^2.30.0",
     "@vercel/blob": "^2.8.2",
     "cors": "^2.8.6",
     "express": "^5.3.0",

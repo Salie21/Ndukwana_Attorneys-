@@ -96,3 +96,11 @@
   .row.between { flex-wrap: wrap; }
   .table-wrap { max-width: 100%; }
 }
+
+/* ---- sidebar: highlight that glides between items ---- */
+.nav { position: relative; }
+.fluid-pill { position: absolute; top: 0; left: 0; z-index: 0; border-radius: 12px; background: rgba(255, 255, 255, .1); pointer-events: none; opacity: 0; transition: transform .28s cubic-bezier(.3, .8, .3, 1), width .28s cubic-bezier(.3, .8, .3, 1), height .28s, opacity .2s; }
+.fluid-pill.on { opacity: 1; }
+.nav.fluid a, .nav.fluid button.nav-item { z-index: 1; }
+.nav.fluid a:hover, .nav.fluid button.nav-item:hover { background: transparent; }
+.nav.fluid a.active:hover { background: rgba(205, 166, 94, .16); }
