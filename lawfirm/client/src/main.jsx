@@ -8,12 +8,13 @@ import './styles/global.css';
 import './styles/shell.css';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/ui';
+import { I18nProvider } from './i18n/I18nProvider';
 import App from './App';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider><ToastProvider><App /></ToastProvider></AuthProvider>
+      <AuthProvider><I18nProvider><ToastProvider><App /></ToastProvider></I18nProvider></AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

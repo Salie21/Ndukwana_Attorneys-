@@ -5,18 +5,21 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PageHeader } from '../../components/Shell';
 import { PasswordField, useAction, useToast } from '../../components/ui';
+import LanguageSelect from '../../components/LanguageSelect';
+import { useT } from '../../i18n/I18nProvider';
 
-const TITLES = { profile: 'My details', notifications: 'Notifications', security: 'Security' };
+const TITLES = { profile: 'nav.details', notifications: 'nav.notifications', security: 'nav.security' };
 
 function Details() {
-  const { profile } = useAuth(); const [run, busy] = useAction();
-  const save = (e) => { e.preventDefault(); const f = new FormData(e.currentTarget); return run(() => api('/profile/me', { method: 'PATCH', body: { name: f.get('name'), phone: f.get('phone') } }), 'Details saved'); };
+  const { profile } = useAuth(); const [run, busy] = useAction(); const t = useT();
+  const save = (e) => { e.preventDefault(); const f = new FormData(e.currentTarget); return run(() => api('/profile/me', { method: 'PATCH', body: { name: f.get('name'), phone: f.get('phone') } }), t('settings.saved')); };
   return (
     <form className="card stack" style={{ maxWidth: 520 }} onSubmit={save}>
-      <label className="field"><span>Full name</span><input className="input" name="name" defaultValue={profile?.name} required minLength={2} maxLength={80} /></label>
-      <label className="field"><span>Email</span><input className="input" value={profile?.email || ''} disabled /></label>
-      <label className="field"><span>Phone</span><input className="input" name="phone" type="tel" defaultValue={profile?.phone} maxLength={30} /></label>
-      <button className="btn btn-gold" disabled={busy}>Save changes</button>
+      <label className="field"><span>{t('profile.name')}</span><input className="input" name="name" defaultValue={profile?.name} required minLength={2} maxLength={80} /></label>
+      <label className="field"><span>{t('settings.email')}</span><input className="input" value={profile?.email || ''} disabled /></label>
+      <label className="field"><span>{t('profile.phone')}</span><input className="input" name="phone" type="tel" defaultValue={profile?.phone} maxLength={30} /></label>
+      <LanguageSelect id="details-language" />
+      <button className="btn btn-gold" disabled={busy}>{t('settings.saveChanges')}</button>
     </form>
   );
 }
@@ -72,8 +75,8 @@ function Security() {
 }
 
 export default function Settings() {
-  const { tab } = useParams(); const { role } = useAuth();
+  const { tab } = useParams(); const { role } = useAuth(); const t = useT();
   if (!TITLES[tab] || (tab === 'profile' && role !== 'client')) return <Navigate to="notifications" replace />;
   const Body = { profile: Details, notifications: Notif, security: Security }[tab];
-  return (<><PageHeader title={TITLES[tab]} sub="Settings" /><Body /></>);
+  return (<><PageHeader title={t(TITLES[tab])} sub={t('nav.settings')} /><Body /></>);
 }

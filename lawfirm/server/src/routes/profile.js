@@ -4,6 +4,7 @@ import { auth, db, FieldValue } from '../lib/firebase.js';
 import { ah, parse } from '../lib/http.js';
 import { requireAuth, loadProfile, staffOnly } from '../middleware/auth.js';
 import { CASE_TYPE_IDS, CASE_TYPES } from '../config.js';
+import { LANGUAGE_CODES } from '../languages.js';
 
 const r = Router();
 r.use(requireAuth, loadProfile);
@@ -22,7 +23,7 @@ r.patch('/me', ah(async (req, res) => {
     avatar: avatar.optional(),
     specialties: z.array(z.enum(CASE_TYPE_IDS)).max(10).optional(),
     bookable: z.boolean().optional(),
-    prefs: z.object({ theme: z.enum(['light', 'dark']).optional(), browserAlerts: z.boolean().optional() }).optional(),
+    prefs: z.object({ theme: z.enum(['light', 'dark']).optional(), browserAlerts: z.boolean().optional(), language: z.enum(LANGUAGE_CODES).optional() }).optional(),
   }).strict(), req.body);
 
   const isTeam = req.user.role === 'staff' || req.user.role === 'admin';

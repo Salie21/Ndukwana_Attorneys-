@@ -86,3 +86,11 @@ Deleting a document removes both copies. Do not share the Drive folder widely: a
 
 ## Optional Slack alerts
 Set `SLACK_WEBHOOK_URL` to get generic alerts (e.g. "New consultation request"). No client names or case details are ever sent.
+
+## Languages and the Gemini assistant
+
+- **Server env:** `GEMINI_API_KEY` (required for the chatbot and for translating) and optional `GEMINI_MODEL` (defaults to `gemini-3.8-flash`). The server calls Gemini through the Interactions API in `server/src/lib/gemini.js`.
+- **Languages:** all 11 spoken official languages plus South African Sign Language (which shows English text). The list lives in `client/src/i18n/languages.js` and `server/src/languages.js`.
+- **How translation works:** English is the source (`client/src/i18n/en.js`). isiZulu, isiXhosa and Afrikaans are hand-written files next to it. The other languages are translated once by Gemini through `POST /api/translate` and cached in the browser and the server. Only interface text is sent, never user data.
+- **Adding or changing text:** add the key to `en.js` and use `t('your.key')`. Every language falls back to English until it is translated. Ask a first-language speaker to review legal wording before launch.
+- **Chat language:** the chat sends the visitor's chosen language so Gemini replies in it.
