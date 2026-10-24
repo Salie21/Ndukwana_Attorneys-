@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Bot, RotateCcw, Send, X } from 'lucide-react';
 import { api } from '../lib/api';
@@ -11,28 +10,28 @@ const prefersReducedMotion = () =>
 
 const load = () => {
   try {
-    const v = JSON.parse(sessionStorage.getItem(STORE));
-    return Array.isArray(v) && v.length ? v : null;
+    const value = JSON.parse(sessionStorage.getItem(STORE));
+    return Array.isArray(value) && value.length ? value : null;
   } catch {
     return null;
   }
 };
 
-const save = (msgs) => {
+const save = (messages) => {
   try {
     sessionStorage.setItem(
       STORE,
-      JSON.stringify(msgs.map(({ fresh, ...m }) => m))
+      JSON.stringify(messages.map(({ fresh, ...message }) => message))
     );
   } catch {
-    // Storage unavailable.
+    // Session storage may be unavailable.
   }
 };
 
 const FRESH = [{ role: 'assistant', greeting: true }];
 
-// Assistant replies appear word by word with a soft fade.
-// Screen readers receive the whole reply at once.
+// Assistant replies appear word by word.
+// Screen readers receive the entire reply at once.
 function Reply({ text, animate, onTick, onDone }) {
   const parts = useMemo(() => text.split(/(\s+)/), [text]);
 
@@ -47,22 +46,24 @@ function Reply({ text, animate, onTick, onDone }) {
     }
 
     const id = setTimeout(() => {
-      setShown((n) => n + 1);
+      setShown((count) => count + 1);
       onTick?.();
     }, 22);
 
     return () => clearTimeout(id);
   }, [shown, parts.length, animate, onTick, onDone]);
 
-  if (shown >= parts.length && !animate) return text;
+  if (shown >= parts.length && !animate) {
+    return text;
+  }
 
   return (
     <>
       <span className="sr-only">{text}</span>
       <span aria-hidden="true">
-        {parts.slice(0, shown).map((p, i) => (
-          <span key={i} className="wd">
-            {p}
+        {parts.slice(0, shown).map((part, index) => (
+          <span key={index} className="wd">
+            {part}
           </span>
         ))}
       </span>
@@ -139,15 +140,20 @@ export default function ChatWidget() {
     if (!open) return;
 
     const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
     };
 
     window.addEventListener('keydown', closeOnEscape);
 
-    return () => window.removeEventListener('keydown', closeOnEscape);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+    };
   }, [open]);
 
-  // Sends the conversation to the API and appends the assistant's answer.
+  // Send the conversation to the server and append its reply.
+  // IMPORTANT: await is valid here because this function is async.
   async function ask(list) {
     setMsgs(list);
     setBusy(true);
@@ -158,22 +164,22 @@ export default function ChatWidget() {
     const timer = setTimeout(() => ctrl.abort(), 30000);
 
     try {
-      // Exclude greetings and error notices from the API history.
+      // Send real conversation turns only.
       const history = list
         .filter(
-          (m) =>
-            !m.greeting &&
-            !m.error &&
-            typeof m.text === 'string' &&
-            m.text
+          (message) =>
+            !message.greeting &&
+            !message.error &&
+            typeof message.text === 'string' &&
+            message.text
         )
         .slice(-7)
-        .map(({ role, text: tx }) => ({
+        .map(({ role, text: messageText }) => ({
           role,
-          text: tx,
+          text: messageText,
         }));
 
-      // Ensure the conversation starts with a user message.
+      // Ensure the history starts with a visitor message.
       while (history.length && history[0].role !== 'user') {
         history.shift();
       }
@@ -199,34 +205,35 @@ export default function ChatWidget() {
         throw new Error(t('chat.unreachable'));
       }
 
-      setMsgs((m) => [
-        ...m,
+      setMsgs((messages) => [
+        ...messages,
         {
           role: 'assistant',
           text: data.reply.trim(),
           fresh: true,
         },
       ]);
-    } catch (e) {
-      // Ignore an intentional abort, such as resetting the chat.
+    } catch (error) {
+      // Ignore intentional aborts, such as resetting the chat.
       if (
         ctrl.signal.aborted &&
-        !(e.message || '').includes('too long')
+        !(error.message || '').includes('too long')
       ) {
         return;
       }
 
-      setMsgs((m) => [
-        ...m,
+      setMsgs((messages) => [
+        ...messages,
         {
           role: 'assistant',
-          text: e.message || t('chat.unreachable'),
+          text: error.message || t('chat.unreachable'),
           error: true,
         },
       ]);
     } finally {
       clearTimeout(timer);
 
+      // Do not let an older request overwrite a newer request's state.
       if (pending.current === ctrl) {
         pending.current = null;
         setBusy(false);
@@ -235,9 +242,10 @@ export default function ChatWidget() {
     }
   }
 
-  // Fixed: send delegates to ask() instead of making a duplicate API request.
-  function send(q0) {
-    const q = (q0 ?? text).trim();
+  // Only ask() makes the API request.
+  // Do not add another await/api() call inside this function.
+  function send(question) {
+    const q = (question ?? text).trim();
 
     if (!q || busy) return;
 
@@ -254,7 +262,7 @@ export default function ChatWidget() {
 
   const retry = () => {
     if (!busy) {
-      ask(msgs.filter((m) => !m.error));
+      ask(msgs.filter((message) => !message.error));
     }
   };
 
@@ -269,14 +277,17 @@ export default function ChatWidget() {
     input.current?.focus({ preventScroll: true });
   };
 
-  const settle = (i) =>
-    setMsgs((m) =>
-      m[i]?.fresh
-        ? m.map((x, j) =>
-            j === i ? { ...x, fresh: false } : x
+  const settle = (index) => {
+    setMsgs((messages) =>
+      messages[index]?.fresh
+        ? messages.map((message, i) =>
+            i === index
+              ? { ...message, fresh: false }
+              : message
           )
-        : m
+        : messages
     );
+  };
 
   if (!open) {
     return (
@@ -336,23 +347,23 @@ export default function ChatWidget() {
       </div>
 
       <div className="chat-body" aria-live="polite">
-        {msgs.map((m, i) => (
+        {msgs.map((message, index) => (
           <div
-            key={i}
+            key={index}
             className={`bub ${
-              m.role === 'user' ? 'me' : 'bot'
-            }${m.error ? ' err' : ''}`}
+              message.role === 'user' ? 'me' : 'bot'
+            }${message.error ? ' err' : ''}`}
           >
-            {m.greeting ? (
+            {message.greeting ? (
               t('chat.greeting')
-            ) : m.role === 'user' || m.error ? (
-              m.text
+            ) : message.role === 'user' || message.error ? (
+              message.text
             ) : (
               <Reply
-                text={m.text}
-                animate={!!m.fresh}
+                text={message.text}
+                animate={!!message.fresh}
                 onTick={scrollDown}
-                onDone={() => settle(i)}
+                onDone={() => settle(index)}
               />
             )}
           </div>
@@ -360,9 +371,9 @@ export default function ChatWidget() {
 
         {msgs.length === 1 && (
           <div className="quick">
-            {['chat.q1', 'chat.q2', 'chat.q3'].map((k) => (
-              <button key={k} onClick={() => send(t(k))}>
-                {t(k)}
+            {['chat.q1', 'chat.q2', 'chat.q3'].map((key) => (
+              <button key={key} onClick={() => send(t(key))}>
+                {t(key)}
               </button>
             ))}
           </div>
@@ -402,8 +413,8 @@ export default function ChatWidget() {
 
       <form
         className="chat-foot"
-        onSubmit={(e) => {
-          e.preventDefault();
+        onSubmit={(event) => {
+          event.preventDefault();
           send();
         }}
       >
@@ -411,7 +422,7 @@ export default function ChatWidget() {
           ref={input}
           className="input"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(event) => setText(event.target.value)}
           maxLength={500}
           placeholder={t('chat.placeholder')}
           aria-label={t('chat.label')}
@@ -431,6 +442,3 @@ export default function ChatWidget() {
   );
 }
 
-    </section>
-  );
-}
