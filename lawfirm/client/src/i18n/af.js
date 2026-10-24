@@ -67,6 +67,10 @@ export default {
   'chat.new': 'Nuwe klets',
   'chat.retry': 'Probeer weer',
   'chat.unreachable': 'Jammer, ek kon nie nou die assistent bereik nie. Probeer asseblief weer, gebruik die Kontak-bladsy of die WhatsApp-knoppie, of bel +27 79 628 7607.',
+  'error.title': 'Hierdie bladsy kon nie laai nie',
+  'error.body': 'Iets het verkeerd gegaan met die vertoon van hierdie bladsy. Probeer asseblief weer, of gaan terug na die tuisblad.',
+  'error.retry': 'Probeer weer',
+  'error.home': 'Tuis',
   'chat.label': 'Jou vraag',
 
   'lang.label': 'Taal',

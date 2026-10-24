@@ -19,7 +19,12 @@ export async function api(path, { method = 'GET', body, form, raw = false, auth:
     throw new Error('Cannot reach the server. Check your connection and try again.');
   }
   if (raw && res.ok) return res; // used for authenticated file downloads
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error || 'Something went wrong. Please try again.');
+  // A 200 that is not JSON means the request reached a web page, not the server (VITE_API_URL missing or wrong).
+  if (data === null) {
+    console.error(`API ${path} did not return JSON. Set VITE_API_URL to your server address and redeploy.`);
+    throw new Error('The website cannot reach its server right now. Please try again later or contact the firm.');
+  }
   return data;
 }

@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import Shell from './components/Shell';
 import { Spinner } from './components/ui';
@@ -22,7 +23,9 @@ import Activity from './pages/app/Activity';
 import Inbox from './pages/app/Inbox';
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
+    <ErrorBoundary resetKey={pathname}>
     <Suspense fallback={<div className="center-screen"><Spinner /></div>}>
       <Routes>
         <Route element={<SiteLayout />}>
@@ -64,5 +67,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }

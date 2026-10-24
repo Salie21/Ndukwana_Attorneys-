@@ -59,7 +59,7 @@ export default function Book() {
     let active = true;
     setStaff(null); setStaffId(''); setStaffError('');
     api(`/profile/staff?caseType=${encodeURIComponent(caseType)}`)
-      .then((result) => { if (active) setStaff(result); })
+      .then((result) => { if (active) setStaff(Array.isArray(result) ? result : []); })
       .catch((error) => { if (active) { setStaff([]); setStaffError(error.message || 'Could not load attorneys. Please try again.'); } });
     return () => { active = false; };
   }, [caseType]);

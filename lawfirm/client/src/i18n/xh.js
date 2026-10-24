@@ -67,6 +67,10 @@ export default {
   'chat.new': 'Incoko entsha',
   'chat.retry': 'Zama kwakhona',
   'chat.unreachable': 'Uxolo, andikwazanga ukufikelela kumncedisi ngoku. Nceda uzame kwakhona, sebenzisa ikhasi lkoQhagamshelwano okanye iqhosha le-WhatsApp, okanye utsalele kwa-+27 79 628 7607.',
+  'error.title': 'Eli phepha alikwazanga ukulayisha',
+  'error.body': 'Kubekho ingxaki ekuboniseni eli phepha. Nceda uzame kwakhona, okanye ubuyele kwiphepha lokuqala.',
+  'error.retry': 'Zama kwakhona',
+  'error.home': 'Ekhaya',
   'chat.label': 'Umbuzo wakho',
 
   'lang.label': 'Ulwimi',
