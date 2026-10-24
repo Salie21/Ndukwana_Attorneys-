@@ -95,11 +95,17 @@ export default function ChatWidget() {
     const q = (q0 ?? text).trim();
     if (!q || busy) return;
     setText('');
-    ask([...msgs, { role: 'user', text: q }]);
+    const next = [...msgs, { role: 'user', text: q }];
+    setMsgs(next); setBusy(true);
+    try {
+      // The greeting is not sent; only the last few turns go to the server.
+      const history = next.slice(1).slice(-7);
+      const { reply } = await api('/chat', { method: 'POST', body: { messages: history }, auth: false });
+      setMsgs((m) => [...m, { role: 'assistant', text: reply }]);
+    } catch (e) {
+      setMsgs((m) => [...m, { role: 'assistant', text: e.message }]);
+    } finally { setBusy(false); }
   }
-  const retry = () => { if (!busy) ask(msgs.filter((m) => !m.error)); };
-  const reset = () => { pending.current?.abort(); setBusy(false); setMsgs(FRESH); setText(''); input.current?.focus({ preventScroll: true }); };
-  const settle = (i) => setMsgs((m) => (m[i]?.fresh ? m.map((x, j) => (j === i ? { ...x, fresh: false } : x)) : m));
 
   if (!open) {
     return (
