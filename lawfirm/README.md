@@ -94,3 +94,9 @@ Set `SLACK_WEBHOOK_URL` to get generic alerts (e.g. "New consultation request").
 - **How translation works:** English is the source (`client/src/i18n/en.js`). isiZulu, isiXhosa and Afrikaans are hand-written files next to it. The other languages are translated once by Gemini through `POST /api/translate` and cached in the browser and the server. Only interface text is sent, never user data.
 - **Adding or changing text:** add the key to `en.js` and use `t('your.key')`. Every language falls back to English until it is translated. Ask a first-language speaker to review legal wording before launch.
 - **Chat language:** the chat sends the visitor's chosen language so Gemini replies in it.
+
+## Chatbot checklist
+- Open `https://YOUR-API-HOST/api/chat/health` in a browser. `"ok": true` means the chatbot can reach Gemini. Otherwise `problem` says why: `GEMINI_API_KEY is not set`, `key_rejected` (wrong or restricted key), `model_not_found` (set `GEMINI_MODEL`), or `quota_exceeded`.
+- The chat tries the Interactions API first, then falls back to `gemini-2.5-flash` (override with `GEMINI_FALLBACK_MODEL`).
+- On the client host (Vercel) set `VITE_API_URL` to your API host and redeploy. Without it, `/api/chat` hits your website instead of the server and the chat cannot answer.
+- On the server set `CLIENT_ORIGIN` to your website address (comma-separated for several), or the browser blocks the request.

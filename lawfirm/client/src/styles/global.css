@@ -16,7 +16,8 @@
   --input: rgba(255, 255, 255, 0.06); color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body { overflow-x: clip; }
 body { margin: 0; font: 400 15px/1.55 var(--font-ui); color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.01em; margin: 0; }
 h1 { font-size: clamp(2.3rem, 5vw, 3.9rem); } h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); } h3 { font-size: 1.4rem; }

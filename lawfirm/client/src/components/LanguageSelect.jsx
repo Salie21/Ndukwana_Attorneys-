@@ -1,4 +1,3 @@
-import { Languages } from 'lucide-react';
 import { LANGUAGES } from '../i18n/languages';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -20,7 +19,7 @@ export default function LanguageSelect({ compact = false, id = 'language-select'
   if (compact) {
     return (
       <span className="lang-compact" title={t('lang.label')}>
-        <Languages size={16} aria-hidden="true" />{select}
+        {select}
         {note && <span id={`${id}-note`} className="sr-only" role="status">{note}</span>}
       </span>
     );

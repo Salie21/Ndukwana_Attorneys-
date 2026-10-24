@@ -64,6 +64,9 @@ export default {
   'chat.close': 'Vala incoko',
   'chat.open': 'Buza umncedisi',
   'chat.typing': 'Uyabhala…',
+  'chat.new': 'Incoko entsha',
+  'chat.retry': 'Zama kwakhona',
+  'chat.unreachable': 'Uxolo, andikwazanga ukufikelela kumncedisi ngoku. Nceda uzame kwakhona, sebenzisa ikhasi lkoQhagamshelwano okanye iqhosha le-WhatsApp, okanye utsalele kwa-+27 79 628 7607.',
   'chat.label': 'Umbuzo wakho',
 
   'lang.label': 'Ulwimi',

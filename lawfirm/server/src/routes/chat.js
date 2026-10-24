@@ -3,11 +3,22 @@ import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { ah, parse } from '../lib/http.js';
 import { SYSTEM_PROMPT } from '../knowledge.js';
-import { chatWithGemini, geminiEnabled } from '../lib/gemini.js';
+import { chatWithGemini, errorKind, geminiEnabled, GEMINI_MODEL } from '../lib/gemini.js';
 import { LANGUAGES, LANGUAGE_CODES } from '../languages.js';
 
 const r = Router();
 const limiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 25, standardHeaders: true, legacyHeaders: false, message: { error: 'You are sending messages very quickly. Please wait a moment.' } });
+
+// Open /api/chat/health in a browser to see whether the chatbot can reach Gemini. Never reveals the key.
+r.get('/health', rateLimit({ windowMs: 60 * 1000, limit: 6, standardHeaders: true, legacyHeaders: false }), ah(async (_req, res) => {
+  if (!geminiEnabled()) return res.json({ ok: false, configured: false, problem: 'GEMINI_API_KEY is not set on the server.' });
+  try {
+    const { via } = await chatWithGemini({ system: 'Reply with the single word OK.', messages: [{ role: 'user', text: 'Ping' }] });
+    res.json({ ok: true, configured: true, model: GEMINI_MODEL(), via });
+  } catch (e) {
+    res.json({ ok: false, configured: true, model: GEMINI_MODEL(), problem: errorKind(e) });
+  }
+}));
 
 const FALLBACK = 'I am having trouble answering right now. Please use the Contact page, the WhatsApp button, or call +27 79 628 7607 and the team will help you.';
 
@@ -35,7 +46,7 @@ r.post('/', limiter, ah(async (req, res) => {
     : `${SYSTEM_PROMPT}\n\nLANGUAGE: Reply in ${langName} unless the visitor clearly writes in a different language, in which case reply in theirs. Keep phone numbers, emails and the firm name exactly as written.`;
 
   try {
-    const reply = await chatWithGemini({ system, messages });
+    const { reply } = await chatWithGemini({ system, messages });
     if (!reply) return res.json({ reply: FALLBACK, fallback: true });
     if (key) { if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value); cache.set(key, { reply, exp: Date.now() + CACHE_MS }); }
     res.json({ reply });

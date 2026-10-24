@@ -83,7 +83,7 @@
 
 /* ---- reveal on scroll, tilt cards, icons ---- */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-.reveal.in { opacity: 1; transform: none; }
+.reveal.is-in { opacity: 1; transform: none; }
 .practice > .reveal, .people > .reveal { display: flex; }
 .practice > .reveal > article, .people > .reveal > .person { flex: 1; }
 .tilt { will-change: transform; }
@@ -126,3 +126,71 @@
 .bub.typing i:nth-child(2) { animation-delay: .15s; } .bub.typing i:nth-child(3) { animation-delay: .3s; }
 @keyframes typingDot { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } .wd { animation: none; } }
+
+
+/* ===== Responsive fixes: phones, tablets, desktop ===== */
+.site-nav .brand { min-width: 0; flex: 0 1 auto; }
+.site-nav .links { min-width: 0; flex-shrink: 0; }
+.lang-select { text-overflow: ellipsis; }
+
+/* Talk to the firm: everything shares the card's edges and never exceeds it */
+.contact-grid { align-items: stretch; }
+.contact-grid > * { min-width: 0; }
+.contact-grid > .card { align-self: stretch; }
+.contact-card > * { min-width: 0; max-width: 100%; }
+.contact-phone-list { grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), max-content)); }
+.contact-details a { overflow-wrap: anywhere; }
+.social-row { flex-wrap: wrap; }
+.contact-map { position: relative; width: 100%; min-height: 0; aspect-ratio: auto; height: clamp(220px, 32vw, 320px); }
+.contact-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; }
+
+@media (max-width: 640px) {
+  .site-nav .in { padding: 8px 12px; gap: 8px; }
+  .site-nav .brand { gap: 7px; }
+  .site-nav .brand img { width: 30px !important; }
+  .site-nav .brand b { font-size: 1.05rem; }
+  .site-nav .brand small { font-size: .62rem; margin-top: 1px; }
+  .site-nav .links { gap: 6px; }
+  .lang-select { max-width: 96px; padding: 4px 18px 4px 8px; font-size: .72rem; background-position: right 5px center; }
+  .site-nav .links a.btn-sm { padding: 6px 10px; font-size: .72rem; }
+  .wrap { padding: 0 16px; }
+  .section { padding: 44px 0; }
+  .hero-site { padding: 36px 0 48px; }
+  .hero-actions .btn { flex: 1 1 auto; }
+  .fact-row span { min-width: 0; flex: 1 1 140px; }
+  .person { flex-direction: column; gap: 12px; padding: 20px; }
+  .contact-card, .contact-grid > .card { padding: 18px 16px; border-radius: 16px; }
+  .contact-details { padding: 14px; }
+  .cta-row .btn { flex: 1 1 100%; }
+  .social-row a { padding: 7px 12px; }
+  .foot-bar { justify-content: center; text-align: center; }
+}
+@media (max-width: 360px) {
+  .site-nav .in { padding: 8px 10px; gap: 6px; }
+  .site-nav .brand b { font-size: .95rem; }
+  .site-nav .brand img { width: 26px !important; }
+  .lang-select { max-width: 92px; }
+  .site-nav .links a.btn-sm { padding: 6px 8px; }
+}
+
+/* Chat: fits every phone, tablet and desktop. Bubbles never overflow and long words wrap. */
+.chatbox { max-width: calc(100vw - 16px); }
+.bub { max-width: 88%; }
+.chat-foot { align-items: center; }
+.chat-foot .input { min-width: 0; flex: 1; }
+.chat-foot .btn { flex: none; }
+.chat-head .icon-btn { flex: none; width: 34px; height: 34px; }
+@media (min-width: 521px) and (max-width: 900px) {
+  .chatbox { right: 16px; bottom: 90px; width: min(420px, calc(100vw - 32px)); height: min(620px, calc(100dvh - 120px)); }
+}
+@media (max-width: 520px) {
+  .fab { width: 50px; height: 50px; }
+  .chatbox { height: calc(var(--chat-viewport-height, 100dvh) - 16px); max-height: none; }
+  .chat-body { padding: 12px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .chatbox { top: 6px; bottom: 6px; height: auto; max-height: none; }
+}
+.chat-head .chat-icon { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .3); }
+.chat-head .chat-icon:hover { border-color: var(--gold); }
+.bub.err { border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
