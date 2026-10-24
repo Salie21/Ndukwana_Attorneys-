@@ -9,23 +9,51 @@ export const GEMINI_MODEL = () => process.env.GEMINI_MODEL || 'gemini-3.8-flash'
 
 const text = (t) => [{ type: 'text', text: t }];
 
-// Stateless multi-turn call using the Interactions API. We keep history in the browser,
-// so store:false and every turn is sent again as steps.
+// Chat with Gemini. Tries, in order:
+//   1. Interactions API with proper history steps
+//   2. Interactions API with the history flattened into one prompt
+//   3. Classic generateContent (gemini-2.5-flash) as a safety net
+// so one unsupported model name or request shape never takes the whole chatbot down.
+const CLASSIC_MODEL = () => process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
+
 export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
+  const base = { model: GEMINI_MODEL(), system_instruction: system, store: false, generation_config: { temperature } };
   const steps = messages.map((m) => (m.role === 'user'
     ? { type: 'user_input', content: text(m.text) }
     : { type: 'model_output', content: text(m.text) }));
-  const base = { model: GEMINI_MODEL(), system_instruction: system, store: false, generation_config: { temperature } };
-  try {
-    const out = await ai().interactions.create({ ...base, input: steps });
-    if (out.output_text?.trim()) return out.output_text.trim();
-  } catch (e) {
-    console.error('Gemini structured call failed, retrying as transcript:', e.status || e.name);
+  const transcript = `${messages.map((m) => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${m.text}`).join('\n')}\nAssistant:`;
+
+  const attempts = [
+    ['interactions', async () => (await ai().interactions.create({ ...base, input: steps })).output_text],
+    ['interactions-transcript', async () => (await ai().interactions.create({ ...base, input: transcript })).output_text],
+    ['generateContent', async () => (await ai().models.generateContent({
+      model: CLASSIC_MODEL(),
+      contents: messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] })),
+      config: { systemInstruction: system, temperature, maxOutputTokens: 600, thinkingConfig: { thinkingBudget: 0 } },
+    })).text],
+  ];
+  let lastError;
+  for (const [via, run] of attempts) {
+    try {
+      const reply = (await run())?.trim();
+      if (reply) return { reply, via };
+    } catch (e) {
+      lastError = e;
+      console.error(`Gemini ${via} failed:`, e.status || e.name, String(e.message || '').slice(0, 200));
+    }
   }
-  // Fallback: flatten the conversation into one prompt so a history-format change never breaks the chat.
-  const transcript = messages.map((m) => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${m.text}`).join('\n');
-  const out = await ai().interactions.create({ ...base, input: `${transcript}\nAssistant:` });
-  return out.output_text?.trim() || '';
+  const err = new Error(lastError?.message || 'No reply from Gemini');
+  err.status = lastError?.status;
+  throw err;
+}
+
+// Short, safe category for a Gemini failure (never includes keys or raw provider text).
+export function errorKind(e) {
+  const s = Number(e?.status);
+  if (s === 400 || s === 401 || s === 403) return 'key_rejected';
+  if (s === 404) return 'model_not_found';
+  if (s === 429) return 'quota_exceeded';
+  return 'error';
 }
 
 // Returns an array of strings, the same length and order as `items`, translated into `languageName`.

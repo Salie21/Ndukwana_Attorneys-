@@ -64,6 +64,9 @@ export default {
   'chat.close': 'Vala ingxoxo',
   'chat.open': 'Buza umsizi',
   'chat.typing': 'Uyabhala…',
+  'chat.new': 'Ingxoxo entsha',
+  'chat.retry': 'Zama futhi',
+  'chat.unreachable': 'Uxolo, angikwazanga ukuxhumana nomsizi okwamanje. Sicela uzame futhi, sebenzisa ikhasi Lokuxhumana noma inkinobho ye-WhatsApp, noma ushayele ku-+27 79 628 7607.',
   'chat.label': 'Umbuzo wakho',
 
   'lang.label': 'Ulimi',

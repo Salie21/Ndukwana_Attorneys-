@@ -64,6 +64,9 @@ export default {
   'chat.close': 'Maak klets toe',
   'chat.open': 'Vra die assistent',
   'chat.typing': 'Tik tans…',
+  'chat.new': 'Nuwe klets',
+  'chat.retry': 'Probeer weer',
+  'chat.unreachable': 'Jammer, ek kon nie nou die assistent bereik nie. Probeer asseblief weer, gebruik die Kontak-bladsy of die WhatsApp-knoppie, of bel +27 79 628 7607.',
   'chat.label': 'Jou vraag',
 
   'lang.label': 'Taal',

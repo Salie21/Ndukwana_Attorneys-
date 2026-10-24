@@ -59,5 +59,5 @@ export function Reveal({ as: Tag = 'div', delay = 0, className = '', children, .
     io.observe(ref.current);
     return () => io.disconnect();
   }, [shown]);
-  return <Tag ref={ref} className={`reveal ${shown ? 'in' : ''} ${className}`} style={{ transitionDelay: shown ? `${delay}ms` : '0ms' }} {...rest}>{children}</Tag>;
+  return <Tag ref={ref} className={`reveal ${shown ? 'is-in' : ''} ${className}`} style={{ transitionDelay: shown ? `${delay}ms` : '0ms' }} {...rest}>{children}</Tag>;
 }

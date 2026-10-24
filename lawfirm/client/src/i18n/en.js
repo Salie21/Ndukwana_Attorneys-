@@ -73,6 +73,9 @@ export default {
   'chat.open': 'Ask the assistant',
   'chat.typing': 'Typing…',
   'chat.label': 'Your question',
+  'chat.new': 'New chat',
+  'chat.retry': 'Try again',
+  'chat.unreachable': 'Sorry, I could not reach the assistant just now. Please try again, use the Contact page or the WhatsApp button, or call +27 79 628 7607.',
 
   // language picker
   'lang.label': 'Language',
