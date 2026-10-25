@@ -73,7 +73,7 @@ export default function Documents() {
   return (
     <>
       <PageHeader title={t('docs.title')} sub={role === 'client' ? t('docs.subClient') : t('docs.subStaff')} />
-      <div className="grid cols-2" style={{ gridTemplateColumns: 'minmax(280px, 380px) 1fr', alignItems: 'start' }}>
+      <div className="grid docs-grid">
         <form className="card stack" onSubmit={upload}>
           <h3>{t('docs.upload')}</h3>
           <label className="field"><span>{t('docs.which')}</span>
