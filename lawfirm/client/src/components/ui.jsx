@@ -1,22 +1,27 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Eye, EyeOff, X } from 'lucide-react';
 import { initials } from '../lib/format';
+import { useT } from '../i18n/I18nProvider';
 
 export function Avatar({ src, name, size = 38 }) {
   return src ? <img className="avatar" style={{ '--s': `${size}px` }} src={src} alt="" /> : <span className="avatar" style={{ '--s': `${size}px` }} aria-hidden="true">{initials(name)}</span>;
 }
-export const Spinner = () => <div className="spinner" role="status" aria-label="Loading" />;
+export const Spinner = () => { const t = useT(); return <div className="spinner" role="status" aria-label={t('common.loading')} />; };
 export const Loading = () => <div className="empty"><Spinner /></div>;
-export const Status = ({ value }) => <span className={`badge ${value}`}><span>{String(value).replace('_', ' ')}</span></span>;
+export const Status = ({ value }) => {
+  const t = useT(); const k = `status.${value}`; const label = t(k);
+  return <span className={`badge ${value}`}><span>{label === k ? String(value).replace('_', ' ') : label}</span></span>;
+};
 export const Empty = ({ title, children }) => <div className="empty"><h4>{title}</h4>{children && <p>{children}</p>}</div>;
 
 export function PasswordField({ className = '', ...props }) {
+  const t = useT();
   const [visible, setVisible] = useState(false);
   return (
     <div className="password-field">
       <input {...props} className={`input ${className}`} type={visible ? 'text' : 'password'} />
       <button className="password-toggle" type="button" onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? 'Hide password' : 'Show password'} aria-pressed={visible}>
+        aria-label={visible ? t('pw.hide') : t('pw.show')} aria-pressed={visible}>
         {visible ? <EyeOff size={18} /> : <Eye size={18} />}
       </button>
     </div>
@@ -24,6 +29,7 @@ export function PasswordField({ className = '', ...props }) {
 }
 
 export function Modal({ title, onClose, children, className = '' }) {
+  const t = useT();
   useEffect(() => {
     const h = (e) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', h); return () => document.removeEventListener('keydown', h);
@@ -31,7 +37,7 @@ export function Modal({ title, onClose, children, className = '' }) {
   return (
     <div className="modal-back" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`modal ${className}`} role="dialog" aria-modal="true" aria-label={title}>
-        <div className="card-head"><h3>{title}</h3><button className="icon-btn" onClick={onClose} aria-label="Close"><X size={18} /></button></div>
+        <div className="card-head"><h3>{title}</h3><button className="icon-btn" onClick={onClose} aria-label={t('common.close')}><X size={18} /></button></div>
         {children}
       </div>
     </div>

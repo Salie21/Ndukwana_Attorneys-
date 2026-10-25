@@ -6,10 +6,13 @@ import { millis } from '../../lib/format';
 import { PageHeader } from '../../components/Shell';
 import CaseCard from '../../components/CaseCard';
 import { Empty, Loading } from '../../components/ui';
+import Select from '../../components/Select';
+import { useT } from '../../i18n/I18nProvider';
 
-const TABS = [['pending', 'Awaiting decision'], ['approved', 'Upcoming'], ['completed', 'Completed'], ['closed', 'Declined or cancelled'], ['all', 'Everything']];
+const TABS = [['pending', 'cases.tabPending'], ['approved', 'cases.tabUpcoming'], ['completed', 'cases.tabCompleted'], ['closed', 'cases.tabClosed'], ['all', 'cases.tabAll']];
 
 export default function Consultations() {
+  const t = useT();
   const [tab, setTab] = useState('pending');
   const [who, setWho] = useState('');
   const { data, loading } = useLive(() => collection(db, 'appointments'), []);
@@ -18,14 +21,12 @@ export default function Consultations() {
     .sort((a, b) => millis(a.startsAt) - millis(b.startsAt));
   return (
     <>
-      <PageHeader title="All consultations" sub="Every booking across the firm. Approve, reassign or cancel as supervisor." />
+      <PageHeader title={t('cons.title')} sub={t('cons.sub')} />
       <div className="row wrap" style={{ marginBottom: 16 }}>
-        <div className="tabs" style={{ margin: 0 }}>{TABS.map(([id, label]) => <button key={id} className={`tab ${tab === id ? 'on' : ''}`} onClick={() => setTab(id)}>{label}</button>)}</div>
-        <select className="select" style={{ width: 'auto', marginLeft: 'auto' }} value={who} onChange={(e) => setWho(e.target.value)} aria-label="Filter by staff member">
-          <option value="">All staff</option>{staff.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
-        </select>
+        <div className="tabs" style={{ margin: 0 }}>{TABS.map(([id, label]) => <button key={id} className={`tab ${tab === id ? 'on' : ''}`} onClick={() => setTab(id)}>{t(label)}</button>)}</div>
+        <Select variant="auto" className="push" value={who} onChange={setWho} aria-label={t('cons.filterStaff')} options={[{ value: '', label: t('cons.allStaff') }, ...staff.map(([id, name]) => ({ value: id, label: name }))]} />
       </div>
-      {loading ? <Loading /> : list.length === 0 ? <div className="card"><Empty title="No consultations match" /></div> : <div className="grid cols-2">{list.map((a) => <CaseCard key={a.id} a={a} admin />)}</div>}
+      {loading ? <Loading /> : list.length === 0 ? <div className="card"><Empty title={t('cons.none')} /></div> : <div className="grid cols-2">{list.map((a) => <CaseCard key={a.id} a={a} admin />)}</div>}
     </>
   );
 }
