@@ -35,7 +35,7 @@ export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
   let lastError;
   for (const [via, run] of attempts) {
     try {
-      const reply = (await run())?.trim();
+      const reply = (await Promise.race([run(), new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('Gemini timed out'), { status: 504 })), 15000))]))?.trim();
       if (reply) return { reply, via };
     } catch (e) {
       lastError = e;
