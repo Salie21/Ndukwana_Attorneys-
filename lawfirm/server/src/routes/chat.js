@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { ah, parse } from '../lib/http.js';
 import { SYSTEM_PROMPT } from '../knowledge.js';
-import { chatWithGemini, errorKind, geminiEnabled, GEMINI_MODEL } from '../lib/gemini.js';
+import { chatWithGemini, errorDetail, errorKind, geminiEnabled, GEMINI_MODEL } from '../lib/gemini.js';
 import { LANGUAGES, LANGUAGE_CODES } from '../languages.js';
 
 const r = Router();
@@ -16,7 +16,7 @@ r.get('/health', rateLimit({ windowMs: 60 * 1000, limit: 6, standardHeaders: tru
     const { via } = await chatWithGemini({ system: 'Reply with the single word OK.', messages: [{ role: 'user', text: 'Ping' }] });
     res.json({ ok: true, configured: true, model: GEMINI_MODEL(), via });
   } catch (e) {
-    res.json({ ok: false, configured: true, model: GEMINI_MODEL(), problem: errorKind(e) });
+    res.json({ ok: false, configured: true, model: GEMINI_MODEL(), problem: errorKind(e), detail: errorDetail(e) });
   }
 }));
 

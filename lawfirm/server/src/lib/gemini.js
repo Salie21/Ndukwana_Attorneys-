@@ -44,6 +44,7 @@ export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
   }
   const err = new Error(lastError?.message || 'No reply from Gemini');
   err.status = lastError?.status;
+  err.via = lastError ? 'all attempts failed' : 'empty reply';
   throw err;
 }
 
@@ -55,3 +56,6 @@ export function errorKind(e) {
   if (s === 429) return 'quota_exceeded';
   return 'error';
 }
+
+// A short, key-free description of a failure, for the /api/chat/health page only.
+export const errorDetail = (e) => `${e?.status || e?.name || 'Error'}: ${String(e?.message || '').replace(/AIza[\w-]{20,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220)}`;
