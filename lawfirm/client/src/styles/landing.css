@@ -63,8 +63,19 @@
 .site-nav .links a.btn-gold { color: #1a2238; }
 .site-foot .social-row a { background: transparent; border-color: rgba(255, 255, 255, 0.22); color: #cdd3e3; } .site-foot .social-row a:hover { border-color: var(--gold); color: var(--gold-soft); }
 @media (max-width: 520px) {
+  .contact-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+  .contact-grid > *, .contact-card { min-width: 0; max-width: 100%; }
+  .contact-card { gap: 15px; padding: 18px; }
+  .contact-card h2 { font-size: clamp(1.8rem, 8vw, 2.2rem); }
+  .contact-card > p, .location-address span, .contact-details a { overflow-wrap: anywhere; }
+  .contact-details { min-width: 0; padding: 12px; gap: 12px; }
+  .contact-phone-list { grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; }
+  .contact-phone-list a { overflow-wrap: anywhere; }
+  .social-row { flex-wrap: wrap; }
+  .contact-grid > .card { min-width: 0; padding: 18px; }
   .contact-form-pair { grid-template-columns: 1fr; gap: 12px; }
-  .contact-map, .contact-map iframe { min-height: 210px; }
+  .contact-map { height: clamp(190px, 56vw, 230px); min-height: 0; aspect-ratio: auto; }
+  .contact-map iframe { height: 100%; min-height: 0; }
   .fab-stack { right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); }
   .chatbox {
     top: calc(var(--chat-viewport-top, 0px) + 8px);
