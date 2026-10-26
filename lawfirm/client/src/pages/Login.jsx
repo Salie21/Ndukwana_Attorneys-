@@ -5,7 +5,6 @@ import { auth } from '../firebase';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { PasswordField } from '../components/ui';
-import LanguageSelect from '../components/LanguageSelect';
 import { useT } from '../i18n/I18nProvider';
 import { homeFor } from '../components/ProtectedRoute';
 import '../styles/auth.css';
@@ -106,8 +105,7 @@ export default function Login({ mode = 'client' }) {
     <div className="auth-page">
       <div className="auth-top">
         <Link to="/">{t('auth.back')}</Link>
-        <LanguageSelect compact id="auth-language" />
-        {isStaff ? <Link to="/login">{t('auth.clientPortal')}</Link> : <Link to="/staff">{t('auth.teamSignIn')}</Link>}
+        {isStaff && <Link to="/login">{t('auth.clientPortal')}</Link>}
       </div>
       <div className="card-auth">
         <CardBackground activeView={activeView} />

@@ -45,7 +45,6 @@ export default function SiteFooter() {
 
         <Reveal className="foot-bar" delay={360}>
           <span>© {new Date().getFullYear()} {FIRM.name}. {t('footer.rights')}</span>
-          <Link className="btn btn-gold btn-sm team-sign-in" to="/staff">{t('footer.signin')}</Link>
         </Reveal>
       </div>
     </footer>
