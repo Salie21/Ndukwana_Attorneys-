@@ -73,6 +73,8 @@ function Reply({ text, animate, onTick, onDone }) {
 
 export default function ChatWidget() {
   const { t, lang } = useI18n();
+  // Free hosting puts the server to sleep. Ping it as soon as the page opens so it is awake when someone asks a question.
+  useEffect(() => { fetch(`${import.meta.env.VITE_API_URL || ''}/api/health`).catch(() => {}); }, []);
 
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState(() => load() || FRESH);
@@ -161,7 +163,7 @@ export default function ChatWidget() {
     const ctrl = new AbortController();
     pending.current = ctrl;
 
-    const timer = setTimeout(() => ctrl.abort(), 30000);
+    const timer = setTimeout(() => ctrl.abort(), 75000);
 
     try {
       // Send real conversation turns only.

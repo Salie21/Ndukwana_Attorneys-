@@ -5,7 +5,7 @@ let client;
 const ai = () => (client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }));
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
-export const GEMINI_MODEL = () => process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+export const GEMINI_MODEL = () => process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 const text = (t) => [{ type: 'text', text: t }];
 
@@ -14,7 +14,7 @@ const text = (t) => [{ type: 'text', text: t }];
 //   2. Interactions API with the history flattened into one prompt
 //   3. Classic generateContent (gemini-2.5-flash) as a safety net
 // so one unsupported model name or request shape never takes the whole chatbot down.
-const CLASSIC_MODEL = () => process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
+const CLASSIC_MODEL = () => process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite';
 
 export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
   const base = { model: GEMINI_MODEL(), system_instruction: system, store: false, generation_config: { temperature } };
@@ -25,17 +25,17 @@ export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
 
   const attempts = [
     ['interactions', async () => (await ai().interactions.create({ ...base, input: steps })).output_text],
-    ['interactions-transcript', async () => (await ai().interactions.create({ ...base, input: transcript })).output_text],
     ['generateContent', async () => (await ai().models.generateContent({
       model: CLASSIC_MODEL(),
       contents: messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] })),
       config: { systemInstruction: system, temperature, maxOutputTokens: 600, thinkingConfig: { thinkingBudget: 0 } },
     })).text],
+    ['interactions-transcript', async () => (await ai().interactions.create({ ...base, input: transcript })).output_text],
   ];
   let lastError;
   for (const [via, run] of attempts) {
     try {
-      const reply = (await run())?.trim();
+      const reply = (await Promise.race([run(), new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('Gemini timed out'), { status: 504 })), 12000))]))?.trim();
       if (reply) return { reply, via };
     } catch (e) {
       lastError = e;
