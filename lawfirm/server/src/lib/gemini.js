@@ -5,7 +5,7 @@ let client;
 const ai = () => (client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }));
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
-export const GEMINI_MODEL = () => process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+export const GEMINI_MODEL = () => process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
 const text = (t) => [{ type: 'text', text: t }];
 
@@ -14,7 +14,7 @@ const text = (t) => [{ type: 'text', text: t }];
 //   2. Interactions API with the history flattened into one prompt
 //   3. Classic generateContent (gemini-2.5-flash) as a safety net
 // so one unsupported model name or request shape never takes the whole chatbot down.
-const CLASSIC_MODEL = () => process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite';
+const CLASSIC_MODEL = () => process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.6-flash';
 
 export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
   const base = { model: GEMINI_MODEL(), system_instruction: system, store: false, generation_config: { temperature } };
@@ -39,6 +39,7 @@ export async function chatWithGemini({ system, messages, temperature = 0.3 }) {
       if (reply) return { reply, via };
     } catch (e) {
       lastError = e;
+      if (e.status === 429 && via === 'generateContent') break; // both models are over quota: stop, do not burn more requests
       console.error(`Gemini ${via} failed:`, e.status || e.name, String(e.message || '').slice(0, 200));
     }
   }
