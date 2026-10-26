@@ -21,9 +21,6 @@ r.get('/health', rateLimit({ windowMs: 60 * 1000, limit: 6, standardHeaders: tru
 }));
 
 const FALLBACK = 'I am having trouble answering right now. Please use the Contact page, the WhatsApp button, or call +27 79 628 7607 and the team will help you.';
-// Gemini 4 Argon is paid-only. Keep the chatbot on a free-tier model and use
-// a second free model if Google temporarily returns an overload response.
-const MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash-lite'];
 
 // Tiny in-memory cache so repeated common questions do not burn the free Gemini quota.
 const cache = new Map();
