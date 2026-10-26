@@ -11,7 +11,6 @@ import taskRoutes from './routes/tasks.js';
 import adminRoutes from './routes/admin.js';
 import contactRoutes from './routes/contact.js';
 import chatRoutes from './routes/chat.js';
-import translateRoutes from './routes/translate.js';
 
 const app = express();
 app.set('trust proxy', 1); // behind one proxy (Render/Railway/etc.) so rate limits use the real IP
@@ -27,7 +26,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PATCH', 'DELETE'], allowedHeaders: ['Content-Type', 'Authorization'], maxAge: 600,
 }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false }));
-app.use(express.json({ limit: '60kb' }));
+app.use(express.json({ limit: '20kb' }));
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }), authRoutes);
@@ -38,7 +37,6 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/translate', translateRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found.' }));
 // Never leak stack traces or internals to the browser.

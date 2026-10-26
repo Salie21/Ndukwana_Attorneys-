@@ -55,25 +55,3 @@ export function errorKind(e) {
   if (s === 429) return 'quota_exceeded';
   return 'error';
 }
-
-// Returns an array of strings, the same length and order as `items`, translated into `languageName`.
-export async function translateStrings({ languageName, items }) {
-  const schema = {
-    type: 'object',
-    properties: { translations: { type: 'array', items: { type: 'string' } } },
-    required: ['translations'],
-  };
-  const system = `You are a professional translator for the website of a South African law firm. Translate every string from English into ${languageName}.
-Rules: keep the same number and order of strings; keep proper nouns (Ndukwana, Johannesburg, WhatsApp, FICA, LLB) unchanged; keep placeholders like {name} or {count} exactly as written; use natural, polite, plain wording a client would understand; do not add explanations. Return JSON only.`;
-  const out = await ai().interactions.create({
-    model: GEMINI_MODEL(),
-    system_instruction: system,
-    input: JSON.stringify(items),
-    store: false,
-    generation_config: { temperature: 0.1 },
-    response_format: { type: 'text', mime_type: 'application/json', schema },
-  });
-  const parsed = JSON.parse(out.output_text);
-  if (!Array.isArray(parsed.translations) || parsed.translations.length !== items.length) throw new Error('translation length mismatch');
-  return parsed.translations.map((s, i) => (typeof s === 'string' && s.trim() ? s : items[i]));
-}

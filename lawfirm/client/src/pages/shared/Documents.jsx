@@ -5,10 +5,12 @@ import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useLive } from '../../lib/useLive';
 import { api } from '../../lib/api';
-import { caseLabel } from '../../lib/firm';
+import { caseText } from '../../lib/firm';
 import { fmtDate, fmtSize, millis } from '../../lib/format';
 import { PageHeader } from '../../components/Shell';
 import { Empty, Loading, Modal, useAction, useToast } from '../../components/ui';
+import Select from '../../components/Select';
+import { useT } from '../../i18n/I18nProvider';
 
 export function useMyAppointments() {
   const { user, role } = useAuth();
@@ -23,6 +25,7 @@ export function useMyAppointments() {
 export default function Documents() {
   const { user, role } = useAuth();
   const toast = useToast();
+  const t = useT();
   const [run, busy] = useAction();
   const fileRef = useRef(null);
   const [apptId, setApptId] = useState('');
@@ -45,10 +48,10 @@ export default function Documents() {
   async function upload(e) {
     e.preventDefault();
     const file = fileRef.current?.files?.[0];
-    if (!file) return toast('Choose a file first.', 'bad');
-    if (file.size > 10 * 1024 * 1024) return toast('That file is larger than 10 MB.', 'bad');
+    if (!file) return toast(t('docs.chooseFile'), 'bad');
+    if (file.size > 10 * 1024 * 1024) return toast(t('docs.tooBig'), 'bad');
     const form = new FormData(); form.append('appointmentId', apptId); form.append('file', file);
-    const ok = await run(() => api('/documents', { method: 'POST', form }), 'Document uploaded');
+    const ok = await run(() => api('/documents', { method: 'POST', form }), t('docs.uploaded'));
     if (ok) { fileRef.current.value = ''; }
   }
   // Files are served by the API only after it checks permission, so the request carries the login token.
@@ -65,40 +68,37 @@ export default function Documents() {
   }).then((result) => {
     if (result && typeof result === 'object') setPreview(result);
   });
-  const remove = (d) => confirm(`Delete “${d.name}”?`) && run(() => api(`/documents/${d.id}`, { method: 'DELETE' }), 'Document deleted');
+  const remove = (d) => confirm(t('docs.confirmDelete', { name: d.name })) && run(() => api(`/documents/${d.id}`, { method: 'DELETE' }), t('docs.deleted'));
 
   return (
     <>
-      <PageHeader title="Documents" sub={role === 'client' ? 'Upload documents for your attorney to review. Only you and your attorney can see them.' : 'Documents from your clients'} />
-      <div className="grid cols-2" style={{ gridTemplateColumns: 'minmax(280px, 380px) 1fr', alignItems: 'start' }}>
+      <PageHeader title={t('docs.title')} sub={role === 'client' ? t('docs.subClient') : t('docs.subStaff')} />
+      <div className="grid docs-grid">
         <form className="card stack" onSubmit={upload}>
-          <h3>Upload a document</h3>
-          <label className="field"><span>Which consultation is it for?</span>
-            <select className="select" value={apptId} onChange={(e) => setApptId(e.target.value)} required>
-              <option value="">Select a consultation</option>
-              {open.map((a) => <option key={a.id} value={a.id}>{caseLabel(a.caseType)} – {fmtDate(a.startsAt)} ({role === 'client' ? a.staffName : a.clientName})</option>)}
-            </select>
+          <h3>{t('docs.upload')}</h3>
+          <label className="field"><span>{t('docs.which')}</span>
+            <Select value={apptId} onChange={setApptId} required placeholder={t('docs.select')} options={open.map((a) => ({ value: a.id, label: `${caseText(t, a.caseType)} – ${fmtDate(a.startsAt)} (${role === 'client' ? a.staffName : a.clientName})` }))} />
           </label>
-          {open.length === 0 && !appts.loading && <p className="hint">{role === 'client' ? 'Book a consultation first, then you can attach documents to it.' : 'No open consultations to attach documents to.'}</p>}
-          <label className="field"><span>File</span><input ref={fileRef} className="input" type="file" accept=".pdf,.doc,.docx,.xlsx,.jpg,.jpeg,.png" required /></label>
-          <p className="hint">PDF, Word, Excel, JPG or PNG. Up to 10 MB.</p>
-          <button className="btn btn-gold" disabled={busy || !apptId}><Upload size={17} />{busy ? 'Uploading…' : 'Upload'}</button>
+          {open.length === 0 && !appts.loading && <p className="hint">{role === 'client' ? t('docs.bookFirst') : t('docs.noOpen')}</p>}
+          <label className="field"><span>{t('docs.file')}</span><input ref={fileRef} className="input" type="file" accept=".pdf,.doc,.docx,.xlsx,.jpg,.jpeg,.png" required /></label>
+          <p className="hint">{t('docs.fileHint')}</p>
+          <button className="btn btn-gold" disabled={busy || !apptId}><Upload size={17} />{busy ? t('docs.uploading') : t('docs.uploadBtn')}</button>
         </form>
         <div className="card">
-          <p className="hint">PDFs and images can be previewed here. Word and Excel files can be downloaded.</p>
-          {docs.loading ? <Loading /> : list.length === 0 ? <Empty title="No documents yet">Uploaded files will be listed here.</Empty> : (
+          <p className="hint">{t('docs.previewHint')}</p>
+          {docs.loading ? <Loading /> : list.length === 0 ? <Empty title={t('docs.none')}>{t('docs.noneBody')}</Empty> : (
             <div className="list">{list.map((d) => (
               <div key={d.id} className="list-item">
                 <FileText size={22} color="var(--gold)" style={{ marginTop: 2 }} />
                 <div className="grow" style={{ minWidth: 0 }}>
                   <b style={{ overflowWrap: 'anywhere' }}>{d.name}</b>
-                  <div className="muted small">{fmtSize(d.size)} · {fmtDate(d.createdAt)} · by {d.uploadedByName}{role !== 'client' && ` · client: ${d.clientName}`}</div>
-                  {role !== 'client' && d.driveStatus === 'failed' && <div className="error-text small">Google Drive copy failed. The file is still safe in private storage.</div>}
+                  <div className="muted small">{fmtSize(d.size)} · {fmtDate(d.createdAt)} · {t('docs.by', { name: d.uploadedByName })}{role !== 'client' && ` · ${t('docs.client', { name: d.clientName })}`}</div>
+                  {role !== 'client' && d.driveStatus === 'failed' && <div className="error-text small">{t('docs.driveFail')}</div>}
                 </div>
-                {role !== 'client' && d.driveLink && <a className="icon-btn" href={d.driveLink} target="_blank" rel="noopener noreferrer" aria-label={`Open ${d.name} in Google Drive`}><ExternalLink size={16} /></a>}
-                {previewable(d) && <button className="icon-btn" aria-label={`Preview ${d.name}`} title="Preview" onClick={() => openPreview(d)} disabled={busy}><Eye size={16} /></button>}
-                <button className="icon-btn" aria-label={`Download ${d.name}`} onClick={() => download(d)} disabled={busy}><Download size={16} /></button>
-                {(d.uploadedBy === user.uid || role === 'admin') && <button className="icon-btn" aria-label={`Delete ${d.name}`} onClick={() => remove(d)} disabled={busy}><Trash2 size={16} /></button>}
+                {role !== 'client' && d.driveLink && <a className="icon-btn" href={d.driveLink} target="_blank" rel="noopener noreferrer" aria-label={t('docs.openDrive', { name: d.name })}><ExternalLink size={16} /></a>}
+                {previewable(d) && <button className="icon-btn" aria-label={t('docs.previewAria', { name: d.name })} title={t('docs.preview')} onClick={() => openPreview(d)} disabled={busy}><Eye size={16} /></button>}
+                <button className="icon-btn" aria-label={t('docs.downloadAria', { name: d.name })} onClick={() => download(d)} disabled={busy}><Download size={16} /></button>
+                {(d.uploadedBy === user.uid || role === 'admin') && <button className="icon-btn" aria-label={t('docs.deleteAria', { name: d.name })} onClick={() => remove(d)} disabled={busy}><Trash2 size={16} /></button>}
               </div>
             ))}</div>
           )}
@@ -106,8 +106,8 @@ export default function Documents() {
       </div>
       {preview && <Modal title={preview.doc.name} onClose={() => setPreview(null)} className="preview-modal">
         {preview.doc.contentType === 'application/pdf'
-          ? <iframe className="document-preview-frame" src={preview.url} title={`Preview of ${preview.doc.name}`} sandbox="allow-scripts" />
-          : <img className="document-preview-image" src={preview.url} alt={`Preview of ${preview.doc.name}`} />}
+          ? <iframe className="document-preview-frame" src={preview.url} title={t('docs.previewOf', { name: preview.doc.name })} sandbox="allow-scripts" />
+          : <img className="document-preview-image" src={preview.url} alt={t('docs.previewOf', { name: preview.doc.name })} />}
       </Modal>}
     </>
   );

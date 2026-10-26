@@ -101,12 +101,6 @@
 .practice-icon { display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--accent-bg); color: var(--accent); }
 .practice article h3 { margin-top: 14px; }
 
-/* ---- language picker in the header ---- */
-.lang-compact { display: inline-flex; align-items: center; gap: 6px; color: #cdd3e3; }
-.lang-select { width: auto; max-width: 150px; padding: 5px 26px 5px 10px; font-size: .84rem; font-weight: 600; border-radius: 999px; background-color: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .22); color: #eef0f6; }
-.lang-select:focus { border-color: var(--gold); }
-.site-nav .lang-select option { color: #1b2236; }
-.field .lang-select { max-width: none; width: 100%; border-radius: var(--r-md); background-color: var(--input); border-color: var(--line); color: var(--ink); font-size: inherit; padding: 11px 14px; }
 
 /* ---- footer ---- */
 .site-foot { padding: 56px 0 26px; }
@@ -142,7 +136,6 @@
 /* ===== Responsive fixes: phones, tablets, desktop ===== */
 .site-nav .brand { min-width: 0; flex: 0 1 auto; }
 .site-nav .links { min-width: 0; flex-shrink: 0; }
-.lang-select { text-overflow: ellipsis; }
 
 /* Talk to the firm: everything shares the card's edges and never exceeds it */
 .contact-grid { align-items: stretch; }
@@ -162,7 +155,6 @@
   .site-nav .brand b { font-size: 1.05rem; }
   .site-nav .brand small { font-size: .62rem; margin-top: 1px; }
   .site-nav .links { gap: 6px; }
-  .lang-select { max-width: 96px; padding: 4px 18px 4px 8px; font-size: .72rem; background-position: right 5px center; }
   .site-nav .links a.btn-sm { padding: 6px 10px; font-size: .72rem; }
   .wrap { padding: 0 16px; }
   .section { padding: 44px 0; }
@@ -180,7 +172,6 @@
   .site-nav .in { padding: 8px 10px; gap: 6px; }
   .site-nav .brand b { font-size: .95rem; }
   .site-nav .brand img { width: 26px !important; }
-  .lang-select { max-width: 92px; }
   .site-nav .links a.btn-sm { padding: 6px 8px; }
 }
 

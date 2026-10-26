@@ -84,11 +84,11 @@ export default function Shell({ area }) {
       <div className="shell">
         <div className="backdrop" />
         {open && <div className="scrim" onClick={() => setOpen(false)} />}
-        <aside className={`sidebar ${role === 'admin' ? 'supervisor-sidebar' : ''} ${open ? 'open' : ''}`} aria-label="Main navigation">
+        <aside className={`sidebar ${role === 'admin' ? 'supervisor-sidebar' : ''} ${open ? 'open' : ''}`} aria-label={t('nav.main')}>
           <Link to={area === 'app' ? '/app' : '/portal'} className="brand">
             <img src="/logo-mark.png" alt="" /><div><b>Ndukwana</b><small>{area === 'app' ? t('nav.teamWorkspace') : t('nav.clientPortal')}</small></div>
           </Link>
-          <FluidHighlight as="nav" className="nav" tabIndex={0} aria-label="Main navigation" onKeyDown={(e) => {
+          <FluidHighlight as="nav" className="nav" tabIndex={0} aria-label={t('nav.main')} onKeyDown={(e) => {
             if (!['ArrowUp', 'ArrowDown'].includes(e.key) || e.currentTarget.scrollHeight <= e.currentTarget.clientHeight) return;
             e.preventDefault();
             e.currentTarget.scrollBy({ top: e.key === 'ArrowDown' ? 48 : -48, behavior: 'auto' });
@@ -101,7 +101,7 @@ export default function Shell({ area }) {
             })}
           </FluidHighlight>
           {area === 'app' && (
-            <Link className="team-strip" to="/app/profile" aria-label="View team members">
+            <Link className="team-strip" to="/app/profile" aria-label={t('nav.viewTeam')}>
               <div className="avatars">{team.data.slice(0, 5).map((m) => <Avatar key={m.id} src={m.avatar} name={m.name} size={30} />)}</div>
               <span>{team.data.length === 1 ? t('nav.teamCountOne') : t('nav.teamCount', { count: team.data.length })}</span>
             </Link>
@@ -111,7 +111,7 @@ export default function Shell({ area }) {
               <div className="nav-label" style={{ paddingTop: 0 }}>{t('nav.contactFirm')}</div>
               <div className="contact-strip">
                 <a href={waHref()} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><WhatsAppIcon width={18} height={18} /></a>
-                <a href={telHref(FIRM.phones[0])} aria-label="Call the office"><Phone size={17} /></a>
+                <a href={telHref(FIRM.phones[0])} aria-label={t('contact.call')}><Phone size={17} /></a>
                 {FIRM.socials.map((s) => { const I = SOCIAL_ICONS[s.id]; return <a key={s.id} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}><I width={17} height={17} /></a>; })}
               </div>
             </div>
@@ -128,6 +128,7 @@ export default function Shell({ area }) {
 }
 
 function ThemeToggle() {
+  const t = useT();
   const { theme, setTheme } = useAuth();
   const [run, busy] = useAction();
   const toggle = () => {
@@ -135,21 +136,22 @@ function ThemeToggle() {
     setTheme(next);
     run(() => api('/profile/me', { method: 'PATCH', body: { prefs: { theme: next } } }));
   };
-  const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  const label = theme === 'dark' ? t('theme.light') : t('theme.dark');
   return <button className="icon-btn theme-toggle" type="button" onClick={toggle} disabled={busy} aria-label={label} title={label}>
     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
   </button>;
 }
 
 export function PageHeader({ title, sub, children }) {
+  const t = useT();
   const { openMenu, unread, area } = useShell();
   return (
     <header className="topbar">
-      <button className="icon-btn menu-btn" onClick={openMenu} aria-label="Open menu"><Menu size={19} /></button>
+      <button className="icon-btn menu-btn" onClick={openMenu} aria-label={t('nav.openMenu')}><Menu size={19} /></button>
       <div className="grow"><h1>{title}</h1>{sub && <p className="sub-title">{sub}</p>}</div>
       {children}
       <ThemeToggle />
-      <Link className="icon-btn bell" to={area === 'app' ? '/app/notifications' : '/portal/notifications'} aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}>
+      <Link className="icon-btn bell" to={area === 'app' ? '/app/notifications' : '/portal/notifications'} aria-label={unread ? t('notif.ariaUnread', { n: unread }) : t('nav.notifications')}>
         <Bell size={18} />{unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
       </Link>
     </header>

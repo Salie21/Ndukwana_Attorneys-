@@ -25,3 +25,8 @@ export const CASE_TYPES = [
   { id: 'other', label: 'Other / not sure yet', hint: 'Tell us more in the description' },
 ];
 export const caseLabel = (id) => CASE_TYPES.find((c) => c.id === id)?.label ?? id;
+
+// Case type name/hint in the chosen language. `t` comes from useT(). Falls back to the stored English text.
+export const caseText = (t, id, kind = '') => { const k = `case.${id}${kind}`; const v = t(k); return v === k ? (kind ? '' : caseLabel(id)) : v; };
+// The case type of a booking in the chosen language (older bookings only stored the English label).
+export const apptCase = (t, a) => (a?.caseType ? caseText(t, a.caseType) : a?.caseLabel || '');
